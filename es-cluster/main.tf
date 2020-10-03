@@ -285,7 +285,7 @@ data "aws_iam_policy_document" "cognito_auth_trust_relationship_policy_doc" {
       variable = "cognito-identity.amazonaws.com:aud"
 
       values = [
-        "${aws_cognito_identity_pool.kibana_identity_pool[0].id}"
+        aws_cognito_identity_pool.kibana_identity_pool[0].id
       ]
     }
     condition {
