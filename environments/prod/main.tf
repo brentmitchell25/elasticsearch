@@ -32,7 +32,7 @@ module "es_cluster" {
   retention_in_days = 7
   ebs_volume_size = 10
   encrypt_at_rest_enabled = true
-  subnets = module.prod_network.private_subnets
+  subnets = module.prod_network.public_subnets
   kibana_access = true
   region = "us-east-1"
   account_number = "116722176476"
