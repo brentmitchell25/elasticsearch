@@ -3,7 +3,7 @@ locals {
   application = "fishtech"
 }
 
-module "prod_network" {
+module "network" {
   source = "../../vpc"
 
   vpc_name        = "fishtech"
@@ -36,4 +36,64 @@ module "es_cluster" {
   kibana_access            = true
   region                   = "us-east-1"
   account_number           = "116722176476"
+}
+
+module "bastion" {
+  source = "../../bastion"
+
+  application = local.application
+  environment = local.environment
+  subnets     = module.network.public_subnets
+  vpc_id      = module.network.vpc_id
+  key_name    = "fishtech"
+}
+
+module "cloudwatch_lambda" {
+  source = "../../cloudwatch-logs"
+
+
+  application        = local.application
+  environment        = local.environment
+  es_endpoint        = module.es_cluster.endpoint
+  subnet_ids         = module.network.public_subnets
+  security_group_ids = [module.network.default_security_group_id]
+}
+
+module "cloudtrail" {
+  source = "../../cloudtrail"
+
+  application           = local.application
+  environment           = local.environment
+  cloudwatch_lambda_arn = module.cloudwatch_lambda.arn
+}
+
+module "ecs_cluster" {
+  source = "../../ecs-cluster"
+
+  application = local.application
+  environment = local.environment
+}
+
+
+module "hello_world_service" {
+  source = "../../hello-world-service"
+
+  application           = local.application
+  environment           = local.environment
+  subnets               = module.network.public_subnets
+  container_ports       = [8080, 8081]
+  vpc_id                = module.network.vpc_id
+  cloudwatch_lambda_arn = module.cloudwatch_lambda.arn
+  ecs_cluster           = module.ecs_cluster.cluster
+}
+
+module "prowler" {
+  source = "../../prowler"
+
+
+  application           = local.application
+  environment           = local.environment
+  cloudwatch_lambda_arn = module.cloudwatch_lambda.arn
+  subnet_ids            = module.network.public_subnets
+  ecs_cluster_arn       = module.ecs_cluster.cluster.arn
 }

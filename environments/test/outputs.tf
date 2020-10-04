@@ -1,5 +1,5 @@
 output "vpc_id" {
-  value       = module.test_network.vpc_id
+  value       = module.network.vpc_id
   description = "VPC Id"
 }
 
@@ -21,4 +21,9 @@ output "kibana_endpoint" {
 output "bastion_ip" {
   value       = module.bastion.public_ip
   description = "Bastion Public IP"
+}
+
+output "dns_name" {
+  value       = module.hello_world_service.dns_name
+  description = "Hello World Service DNS"
 }

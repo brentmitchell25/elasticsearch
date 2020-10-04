@@ -1,6 +1,5 @@
-provider "aws" {
-  region = "us-east-1"
-}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_service_linked_role" "es" {
   aws_service_name = "es.amazonaws.com"
@@ -131,7 +130,7 @@ resource "aws_elasticsearch_domain" "es" {
 }
 
 resource "aws_cloudwatch_log_group" "es_slow_logs" {
-  name = "slow-logs"
+  name              = "slow-logs"
   retention_in_days = var.retention_in_days
 
   tags = {
@@ -141,7 +140,7 @@ resource "aws_cloudwatch_log_group" "es_slow_logs" {
 }
 
 resource "aws_cloudwatch_log_group" "es_index_logs" {
-  name = "index-logs"
+  name              = "index-logs"
   retention_in_days = var.retention_in_days
 
   tags = {
@@ -151,7 +150,7 @@ resource "aws_cloudwatch_log_group" "es_index_logs" {
 }
 
 resource "aws_cloudwatch_log_group" "es_app_logs" {
-  name = "app-logs"
+  name              = "app-logs"
   retention_in_days = var.retention_in_days
 
   tags = {
@@ -166,9 +165,9 @@ data "aws_iam_policy_document" "this" {
     effect  = "Allow"
     actions = ["es:*"]
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["*"]
     }
-    resources = ["arn:aws:es:${var.region}:${var.account_number}:domain/${var.environment}/*"]
+    resources = ["arn:aws:es:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:domain/${var.environment}/*"]
   }
 }
