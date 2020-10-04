@@ -7,17 +7,6 @@ locals {
   application = "fishtech"
 }
 
-module "test_network" {
-  source = "../../vpc"
-
-  vpc_name        = "fishtech"
-  cidr            = "10.0.0.0/16"
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
-  application     = local.application
-  environment     = local.environment
-}
-
 module "network" {
   source = "../../vpc"
 
@@ -62,7 +51,6 @@ module "bastion" {
 module "cloudwatch_lambda" {
   source = "../../cloudwatch-logs"
 
-
   application        = local.application
   environment        = local.environment
   es_endpoint        = module.es_cluster.endpoint
@@ -100,7 +88,6 @@ module "hello_world_service" {
 
 module "prowler" {
   source = "../../prowler"
-
 
   application           = local.application
   environment           = local.environment
