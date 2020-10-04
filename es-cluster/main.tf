@@ -3,6 +3,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_iam_service_linked_role" "es" {
   aws_service_name = "es.amazonaws.com"
+  custom_suffix    = var.environment
 }
 
 data "aws_iam_policy_document" "elasticsearch-log-publishing-policy" {

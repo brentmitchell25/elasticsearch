@@ -60,7 +60,7 @@ data "archive_file" "cwl2eslambda" {
 }
 
 resource "aws_lambda_function" "cwl_stream_lambda" {
-  filename         = "cwl2eslambda.zip"
+  filename         = "data.archive_file.cwl_stream_lambda.output_path"
   function_name    = "LogsToElasticsearch-${var.environment}"
   role             = aws_iam_role.lambda_elasticsearch_execution_role.arn
   handler          = "cwl2es.handler"
