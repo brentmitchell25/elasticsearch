@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 resource "aws_security_group" "lb_sg" {
-  name   = "lb-${var.application}"
+  name   = "lb-${var.application}-${var.environment}"
   vpc_id = var.vpc_id
 }
 
@@ -28,7 +28,7 @@ resource "aws_security_group_rule" "app_lb_allow_all_http" {
 }
 
 resource "aws_lb" "alb" {
-  name               = var.application
+  name               = "${var.application}-${var.environment}"
   internal           = false
   load_balancer_type = "application"
   subnets            = var.subnets
@@ -51,7 +51,7 @@ resource "aws_lb_listener" "http" {
 resource "aws_lb_target_group" "http" {
   count = length(var.container_ports)
 
-  name     = "${var.application}-${var.container_ports[count.index]}"
+  name     = "${var.application}-${var.environment}-${var.container_ports[count.index]}"
   port     = element(var.container_ports, count.index)
   protocol = "HTTP"
 

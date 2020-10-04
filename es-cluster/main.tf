@@ -130,7 +130,7 @@ resource "aws_elasticsearch_domain" "es" {
 }
 
 resource "aws_cloudwatch_log_group" "es_slow_logs" {
-  name              = "slow-logs"
+  name              = "/es/slow-logs-${var.environment}"
   retention_in_days = var.retention_in_days
 
   tags = {
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_log_group" "es_slow_logs" {
 }
 
 resource "aws_cloudwatch_log_group" "es_index_logs" {
-  name              = "index-logs"
+  name              = "/es/index-logs-${var.environment}"
   retention_in_days = var.retention_in_days
 
   tags = {
@@ -150,7 +150,7 @@ resource "aws_cloudwatch_log_group" "es_index_logs" {
 }
 
 resource "aws_cloudwatch_log_group" "es_app_logs" {
-  name              = "app-logs"
+  name              = "/es/app-logs-${var.environment}"
   retention_in_days = var.retention_in_days
 
   tags = {
