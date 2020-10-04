@@ -33,63 +33,54 @@ variable "dedicated_master_enabled" {
   description = "Enable Dedicated Master"
 }
 
-variable "dedicated_master_count"   {
+variable "dedicated_master_count" {
   type        = number
   description = "Dedicated Master Count"
+  default     = 0
 }
 
-variable "dedicated_master_type"{
-  type = string
+variable "dedicated_master_type" {
+  type        = string
   description = "Dedicated Master Instance Type"
+  default     = ""
 }
 
-variable "zone_awareness_enabled"   {
-  type = bool
+variable "zone_awareness_enabled" {
+  type        = bool
   description = "Enable Zone Awareness"
 }
 
-variable "availability_zone_count"{
-  type = number 
+variable "availability_zone_count" {
+  type        = number
   description = "Availability Zone Count"
 }
 
-variable "ebs_enabled"{
-  type = bool 
+variable "ebs_enabled" {
+  type        = bool
   description = "Enable EBS"
 }
 
-variable "ebs_volume_size"{
-  type = number 
+variable "ebs_volume_size" {
+  type        = number
   description = "EBS Volume Size"
 }
 
-variable "encrypt_at_rest_enabled"{
-  type = bool 
+variable "encrypt_at_rest_enabled" {
+  type        = bool
   description = "Encrypt at Rest"
 }
 
 variable "subnets" {
-  type = list(string) 
+  type        = list(string)
   description = ""
 }
 
-variable "kibana_access"{
-  type = bool
+variable "kibana_access" {
+  type        = bool
   description = "Kibana Access"
 }
 
-variable "region"{
-  type = string
-  description = "AWS Region"
-  default = "us-east-1"
-}
-
-variable "account_number"{
-  type = string
-  description = "Account Number"
-}
-
-variable "application"{
-  type = string 
+variable "application" {
+  type        = string
   description = "Application Name"
 }

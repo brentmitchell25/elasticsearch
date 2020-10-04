@@ -19,11 +19,11 @@ variable "public_subnets" {
 }
 
 variable "application" {
-  type = string 
+  type        = string
   description = "Application Name"
 }
 
 variable "environment" {
-  type = string 
+  type        = string
   description = "Environment"
 }
