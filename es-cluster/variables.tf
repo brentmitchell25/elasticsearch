@@ -36,11 +36,13 @@ variable "dedicated_master_enabled" {
 variable "dedicated_master_count"   {
   type        = number
   description = "Dedicated Master Count"
+  default     = 0
 }
 
 variable "dedicated_master_type"{
   type = string
   description = "Dedicated Master Instance Type"
+  default     = ""
 }
 
 variable "zone_awareness_enabled"   {

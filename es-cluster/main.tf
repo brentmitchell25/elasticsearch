@@ -120,23 +120,13 @@ resource "aws_elasticsearch_domain" "es" {
     enabled                  = "true"
   }
 
-  dynamic "cognito_options" {
-    for_each = var.kibana_access == true ? [{}] : []
-    content {
-      enabled          = true
-      user_pool_id     = aws_cognito_user_pool.kibana_user_pool[0].id
-      identity_pool_id = aws_cognito_identity_pool.kibana_identity_pool[0].id
-      role_arn         = aws_iam_role.kibana_cognito_role[0].arn
-    }
-  }
-
   tags = {
     env = var.environment
     app = var.application
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.kibana_cognito_role_policy, aws_iam_service_linked_role.es
+    aws_iam_service_linked_role.es
   ]
 }
 
@@ -172,161 +162,13 @@ resource "aws_cloudwatch_log_group" "es_app_logs" {
 
 data "aws_iam_policy_document" "this" {
 
-  dynamic "statement" {
-    for_each = var.kibana_access == true ? [{}] : []
-    content {
-      effect  = "Allow"
-      actions = ["es:*"]
-      principals {
-        type = "AWS"
-        identifiers = [
-          "arn:aws:iam::${var.account_number}:role/${aws_iam_role.kibana_cognito_role[0].name}",
-          "arn:aws:iam::${var.account_number}:role/${aws_iam_role.cognito_auth_role[0].name}"
-        ]
-      }
-      resources = ["arn:aws:es:${var.region}:${var.account_number}:domain/${var.environment}/*"]
-    }
-  }
-}
-
-
-resource "aws_cognito_user_pool" "kibana_user_pool" {
-  count = var.kibana_access == true ? 1 : 0
-  name  = var.application
-
-  schema {
-    name                = "email"
-    attribute_data_type = "String"
-    required            = true
-    mutable             = true
-
-    string_attribute_constraints {
-      min_length = 1
-      max_length = 256
-    }
-  }
-
-}
-
-resource "aws_cognito_identity_pool" "kibana_identity_pool" {
-  count                            = var.kibana_access == true ? 1 : 0
-  identity_pool_name               = var.application
-  allow_unauthenticated_identities = false
-}
-
-data "aws_iam_policy" "kibana_cognito_policy" {
-  count = var.kibana_access == true ? 1 : 0
-  arn   = "arn:aws:iam::aws:policy/AmazonESCognitoAccess"
-}
-
-data "aws_iam_policy_document" "elasticsearch_cognito_trust_policy_doc" {
-  count = var.kibana_access == true ? 1 : 0
-
   statement {
-    actions = ["sts:AssumeRole"]
-
+    effect  = "Allow"
+    actions = ["es:*"]
     principals {
-      type        = "Service"
-      identifiers = ["es.amazonaws.com"]
+      type = "AWS"
+      identifiers = ["*"]
     }
-
-    effect = "Allow"
-  }
-}
-
-resource "aws_cognito_user_pool_domain" "this" {
-  count        = var.kibana_access == true ? 1 : 0
-  domain       = var.application
-  user_pool_id = aws_cognito_user_pool.kibana_user_pool[0].id
-}
-
-resource "aws_iam_role" "kibana_cognito_role" {
-  count              = var.kibana_access == true ? 1 : 0
-  name               = "${var.application}-kibana"
-  assume_role_policy = data.aws_iam_policy_document.elasticsearch_cognito_trust_policy_doc[0].json
-}
-
-resource "aws_iam_role_policy_attachment" "kibana_cognito_role_policy" {
-  count      = var.kibana_access == true ? 1 : 0
-  role       = aws_iam_role.kibana_cognito_role[0].name
-  policy_arn = data.aws_iam_policy.kibana_cognito_policy[0].arn
-}
-
-data "aws_iam_policy_document" "cognito_auth_policy_doc" {
-  count = var.kibana_access == true ? 1 : 0
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "mobileanalytics:PutEvents",
-      "cognito-sync:*",
-      "cognito-identity:*",
-      "es:ESHttp*"
-    ]
     resources = ["arn:aws:es:${var.region}:${var.account_number}:domain/${var.environment}/*"]
-
-  }
-}
-
-data "aws_iam_policy_document" "cognito_auth_trust_relationship_policy_doc" {
-  count = var.kibana_access == true ? 1 : 0
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "sts:AssumeRoleWithWebIdentity"
-    ]
-    principals {
-      type        = "Federated"
-      identifiers = ["cognito-identity.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "cognito-identity.amazonaws.com:aud"
-
-      values = [
-        aws_cognito_identity_pool.kibana_identity_pool[0].id
-      ]
-    }
-    condition {
-      test     = "ForAnyValue:StringLike"
-      variable = "cognito-identity.amazonaws.com:amr"
-
-      values = [
-        "authenticated"
-      ]
-    }
-  }
-}
-
-resource "aws_iam_policy" "cognito_auth_policy" {
-  count       = var.kibana_access == true ? 1 : 0
-  name        = var.application
-  path        = "/"
-  description = "Authorizaation policy for kibana cognito identity pool"
-
-  policy = data.aws_iam_policy_document.cognito_auth_policy_doc[0].json
-
-}
-
-resource "aws_iam_role" "cognito_auth_role" {
-  count = var.kibana_access == true ? 1 : 0
-  name  = "${var.application}-cognito"
-
-  assume_role_policy = data.aws_iam_policy_document.cognito_auth_trust_relationship_policy_doc[0].json
-}
-
-resource "aws_iam_role_policy_attachment" "cognito_auth_role_policy" {
-  count      = var.kibana_access == true ? 1 : 0
-  role       = aws_iam_role.cognito_auth_role[0].name
-  policy_arn = aws_iam_policy.cognito_auth_policy[0].arn
-}
-
-resource "aws_cognito_identity_pool_roles_attachment" "this" {
-  count            = var.kibana_access == true ? 1 : 0
-  identity_pool_id = aws_cognito_identity_pool.kibana_identity_pool[0].id
-
-  roles = {
-    "authenticated" = aws_iam_role.cognito_auth_role[0].arn
   }
 }
