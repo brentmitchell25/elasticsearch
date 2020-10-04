@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-}
-
 locals {
   environment = "prod"
   application = "fishtech"
@@ -23,8 +19,8 @@ module "es_cluster" {
 
   application              = local.application
   environment              = local.environment
-  vpc_id                   = module.prod_network.vpc_id
-  cidr_block               = module.prod_network.cidr_block
+  vpc_id                   = module.network.vpc_id
+  cidr_block               = module.network.cidr_block
   instance_count           = 2
   instance_type            = "t3.small.elasticsearch"
   dedicated_master_count   = 3
@@ -36,7 +32,7 @@ module "es_cluster" {
   retention_in_days        = 7
   ebs_volume_size          = 10
   encrypt_at_rest_enabled  = true
-  subnets                  = module.prod_network.public_subnets
+  subnets                  = module.network.public_subnets
   kibana_access            = true
 }
 
