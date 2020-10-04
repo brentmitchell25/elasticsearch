@@ -1,5 +1,9 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
 locals {
-  environment = "prod"
+  environment = "test"
   application = "fishtech"
 }
 
@@ -20,19 +24,17 @@ module "es_cluster" {
   application              = local.application
   environment              = local.environment
   vpc_id                   = module.network.vpc_id
-  cidr_block               = module.network.cidr_block
-  instance_count           = 2
+  cidr_block               = "0.0.0.0/0"
+  instance_count           = 1
   instance_type            = "t3.small.elasticsearch"
-  dedicated_master_count   = 3
-  dedicated_master_type    = "t3.small.elasticsearch"
-  dedicated_master_enabled = true
-  zone_awareness_enabled   = true
-  availability_zone_count  = 2
+  dedicated_master_enabled = false
+  zone_awareness_enabled   = false
+  availability_zone_count  = 1
   ebs_enabled              = true
-  retention_in_days        = 7
+  retention_in_days        = 3
   ebs_volume_size          = 10
   encrypt_at_rest_enabled  = true
-  subnets                  = module.network.public_subnets
+  subnets                  = [module.network.private_subnets[0]]
   kibana_access            = true
 }
 
@@ -48,7 +50,6 @@ module "bastion" {
 
 module "cloudwatch_lambda" {
   source = "../../cloudwatch-logs"
-
 
   application        = local.application
   environment        = local.environment
@@ -88,10 +89,10 @@ module "hello_world_service" {
 module "prowler" {
   source = "../../prowler"
 
-
   application           = local.application
   environment           = local.environment
   cloudwatch_lambda_arn = module.cloudwatch_lambda.arn
   subnet_ids            = module.network.public_subnets
   ecs_cluster_arn       = module.ecs_cluster.cluster.arn
 }
+
