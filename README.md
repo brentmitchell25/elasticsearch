@@ -3,6 +3,7 @@
 - [Elasticsearch Cluster](#elasticsearch-cluster)
   - [Prerequisites](#prerequisites)
   - [Account Setup](#account-setup)
+  - [Repo](#repo)
   - [Features](#features)
   - [Improvements](#improvements)
 
@@ -15,6 +16,12 @@
 
 1. Created `mitchell-terraform-backend` for terraform state
 2. Created `fishtech.pem` Key Pair to be referenced and used for Bastion hsots
+
+## Repo
+
+1. There are two environments, `test` and `prod` in the `environments` directory
+2. The rest of the directories are modules to create the necessary components
+3. Test environment is currently deployed for reduced costs. The prod environment is available in the `environments/prod` directory which includes multi-AZ deployment with multiple master nodes for resiliency.
 
 ## Features
 
@@ -36,6 +43,5 @@
    - Ideally this could be removed in favor of a VPN connection and reverse proxy with some type of OpenId/SAML login portal to access Kibana and administration
 2. Add DynamoDB backend locking to prevent concurrent deployments which could corrupt the backend state
 3. Lock down a few more security group rules and IAM permissions. A thorough review of IAM permissions and security group rules to make sure everything is least privileged as there are a few too many open rules (i.e. Lambda function has too many permissions needed)
-4. Test environment is currently deployed for reduced costs. The prod environment is available in the `environments/prod` directory which includes multi-AZ deployment with multiple master nodes for resiliency.
-5. Export Load Balancer logs to CloudWatch and send to Elasticsearch
-6. Export VPC Flow Logs to Elasticsearch
+4. Export Load Balancer logs to CloudWatch and send to Elasticsearch
+5. Export VPC Flow Logs to Elasticsearch
