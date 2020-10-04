@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
 locals {
   environment = "prod"
   application = "fishtech"
@@ -34,8 +38,6 @@ module "es_cluster" {
   encrypt_at_rest_enabled  = true
   subnets                  = module.prod_network.public_subnets
   kibana_access            = true
-  region                   = "us-east-1"
-  account_number           = "116722176476"
 }
 
 module "bastion" {
